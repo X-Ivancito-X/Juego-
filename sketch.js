@@ -2,6 +2,7 @@ let notes = [];
 let lanes = 10; // 5 carriles por jugador
 let laneWidth;
 
+let scrore = 0;
 let scoreLeft = 0, scoreRight = 0;
 let totalNotesLeft = 0, totalNotesRight = 0;
 
@@ -50,7 +51,6 @@ function draw() {
     text("Presiona ESPACIO para comenzar", width / 2, height / 2);
     return;
   }
-
   if (!gameOver) {
     // dibujar carriles
     stroke(100);
@@ -167,6 +167,8 @@ function draw() {
     textSize(24);
     text(`Jugador 1: ${scoreLeft} puntos (Max Combo: ${maxComboLeft})`, width/2, height/2 - 70);
     text(`Jugador 2: ${scoreRight} puntos (Max Combo: ${maxComboRight})`, width/2, height/2 - 30);
+    // puntaje total
+    document.getElementById("numero").value = score;
   }
 }
 
