@@ -1,0 +1,132 @@
+let notes = [];
+let lanes = 4;
+let laneWidth;
+let score = 0;
+let totalNotes = 0;
+
+let barWidth = 80; 
+let barHeight = 20;
+let barX; 
+let barSpeed = 5;
+
+let gameOver = false;
+let song;
+let songStarted = false;
+let amplitude;
+let fft;
+let lastBeat = 0;
+let beatCooldown = 250; // milisegundos entre notas
+
+function preload() {
+  // ⚠️ Reemplaza con el ID de tu archivo en Google Drive
+  song = loadSound("Soda_Stereo_-_Tele_K_(mp3.pm).mp3");
+}
+
+function setup() {
+  createCanvas(400, 600);
+  laneWidth = width / lanes;
+  barX = width / 2 - barWidth / 2;
+  amplitude = new p5.Amplitude();
+  fft = new p5.FFT(0.8, 1024); // análisis de 1024 bandas
+}
+
+function draw() {
+  background(20);
+
+  if (!songStarted) {
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(24);
+    text("Presiona ESPACIO para comenzar", width / 2, height / 2);
+    return;
+  }
+
+  if (!gameOver) {
+    // Dibujar carriles
+    for (let i = 0; i < lanes; i++) {
+      stroke(100);
+      line(i * laneWidth, 0, i * laneWidth, height);
+    }
+
+    // Análisis de frecuencias
+    let spectrum = fft.analyze();
+    let bass = fft.getEnergy("bass");   // graves
+    let lowMid = fft.getEnergy("lowMid");
+    let mid = fft.getEnergy("mid");
+    let treble = fft.getEnergy("treble"); // agudos
+
+    // Detectar beats en cada rango → asignar carril
+    if (millis() - lastBeat > beatCooldown) {
+      if (bass > 180) spawnNote(0);      // carril 1
+      if (lowMid > 160) spawnNote(1);    // carril 2
+      if (mid > 150) spawnNote(2);       // carril 3
+      if (treble > 140) spawnNote(3);    // carril 4
+      lastBeat = millis();
+    }
+
+    // Dibujar notas
+    let remainingNotes = 0;
+    for (let n of notes) {
+      if (!n.hit && n.y < height) {
+        fill(0, 200, 255);
+        rect(n.lane * laneWidth + 10, n.y, laneWidth - 20, 20, 5);
+        n.y += 3;
+
+        if (
+          n.y + 20 > height - barHeight &&
+          n.y < height &&
+          n.lane * laneWidth + 10 + (laneWidth - 20) > barX &&
+          n.lane * laneWidth + 10 < barX + barWidth
+        ) {
+          n.hit = true;
+          score += 10;
+        }
+      }
+      if (!n.hit && n.y < height) remainingNotes++;
+    }
+
+    // Dibujar barra
+    fill(255, 255, 0);
+    rect(barX, height - barHeight, barWidth, barHeight, 5);
+
+    // Puntaje
+    fill(255);
+    textSize(24);
+    text("Score: " + score, 10, 30);
+
+    // Mover barra
+    if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) barX -= barSpeed;
+    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) barX += barSpeed;
+    barX = constrain(barX, 0, width - barWidth);
+
+    // Terminar cuando la canción finaliza
+    if (!song.isPlaying() && notes.length > 0 && remainingNotes === 0) {
+      gameOver = true;
+    }
+
+  } else {
+    // Pantalla final
+    background(50);
+    fill(255);
+    textSize(28);
+    textAlign(CENTER);
+    text("¡Juego Terminado!", width / 2, height / 2 - 100);
+    textSize(22);
+    text(`Puntos obtenidos: ${score}`, width / 2, height / 2 - 60);
+    text(`Puntos totales: ${totalNotes * 10}`, width / 2, height / 2 - 30);
+    let percentage = nf((score / (totalNotes * 10)) * 100, 0, 1);
+    text(`Porcentaje de aciertos: ${percentage}%`, width / 2, height / 2);
+  }
+}
+
+function spawnNote(lane) {
+  notes.push({ lane: lane, y: -20, hit: false });
+  totalNotes++;
+}
+
+function keyPressed() {
+  if (!songStarted && key === ' ') {
+    song.play();
+    songStarted = true;
+  }
+}
