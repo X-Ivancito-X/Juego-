@@ -24,8 +24,8 @@ let beatCooldown = 250;
 let flashLeft = 0, flashRight = 0;
 
 function preload() {
-  // ⚠️ Cambia el ID por el de tu archivo en Google Drive
-  song = loadSound("Soda_Stereo_-_Tele_K_(mp3.pm).mp3");
+  // Carga el archivo de música desde la carpeta correcta
+  song = loadSound("Views/Src/Music/Soda_Stereo_-_Tele_K_(mp3.pm).mp3");
 }
 
 function setup() {
@@ -168,7 +168,7 @@ function draw() {
     text(`Jugador 1: ${scoreLeft} puntos (Max Combo: ${maxComboLeft})`, width/2, height/2 - 70);
     text(`Jugador 2: ${scoreRight} puntos (Max Combo: ${maxComboRight})`, width/2, height/2 - 30);
     // puntaje total
-    document.getElementById("numero").value = score;
+    // document.getElementById("numero").value = score;
   }
 }
 

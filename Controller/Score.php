@@ -1,7 +1,7 @@
 <?php
     session_start();
 
-    include 'conexion.php';
+    include 'Model/ConexionBD.php';
 
     $score = $_POST['numero'];
     $nick = $_SESSION['nick'];
