@@ -1,22 +1,41 @@
 <?php
-    session_start();
+session_start();
 
-    include 'Model/ConexionBD.php';
+require_once __DIR__ . '/../Model/ConexionBD.php';
 
-    $score = $_POST['numero'];
-    $nick = $_SESSION['nick'];
+header('Content-Type: text/plain; charset=utf-8');
 
-    $query = "UPDATE usuario SET score = '$score' WHERE nick = '$nick' ";
-    $ejecutar = mysqli_query($conexion, $query);
+if (!isset($_SESSION['nick'])) {
+    http_response_code(401);
+    echo 'Sesión no iniciada';
+    exit;
+}
 
-    if($ejecutar){
-        echo'
-            <script>
-                alert("Se a guardado su score");
-            </script>
-        ';
-    }
+$nick = $_SESSION['nick'];
+$score = isset($_POST['numero']) ? intval($_POST['numero']) : 0;
 
-    mysqli_close($conexion);
+if (!isset($conexion) || !$conexion) {
+    http_response_code(500);
+    echo 'Error de conexión';
+    exit;
+}
 
+$stmt = $conexion->prepare('UPDATE usuario SET score = ? WHERE nick = ?');
+if (!$stmt) {
+    http_response_code(500);
+    echo 'Error preparando consulta';
+    exit;
+}
+
+$stmt->bind_param('is', $score, $nick);
+$ok = $stmt->execute();
+$stmt->close();
+mysqli_close($conexion);
+
+if ($ok) {
+    echo 'Score guardado correctamente';
+} else {
+    http_response_code(500);
+    echo 'Error al guardar score';
+}
 ?>

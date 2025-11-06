@@ -2,7 +2,8 @@ let notes = [];
 let lanes = 10; // 5 carriles por jugador
 let laneWidth;
 
-let scrore = 0;
+let scrore = 0; // (no usado)
+let totalScore = 0;
 let scoreLeft = 0, scoreRight = 0;
 let totalNotesLeft = 0, totalNotesRight = 0;
 
@@ -16,6 +17,7 @@ let barSpeed = 8;
 let gameOver = false;
 let song;
 let songStarted = false;
+let isPaused = false;
 let fft;
 let lastBeatLeft = 0, lastBeatRight = 0;
 let beatCooldown = 250;
@@ -24,12 +26,12 @@ let beatCooldown = 250;
 let flashLeft = 0, flashRight = 0;
 
 function preload() {
-  // Carga el archivo de música desde la carpeta correcta
-  song = loadSound("Views/Src/Music/Soda_Stereo_-_Tele_K_(mp3.pm).mp3");
+  // Carga el archivo de música desde la carpeta correcta (relativa a Views/Page/Juego.html)
+  song = loadSound("../Src/Music/Soda_Stereo_-_Tele_K_(mp3.pm).mp3");
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(1366, 620);
   laneWidth = width / lanes;
 
   // barra de cada jugador: ocupa los 5 carriles de su lado
@@ -51,6 +53,17 @@ function draw() {
     text("Presiona ESPACIO para comenzar", width / 2, height / 2);
     return;
   }
+  
+  if (isPaused) {
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(32);
+    text("PAUSA", width / 2, height / 2);
+    textSize(24);
+    text("Presiona ESC o cualquier tecla para continuar", width / 2, height / 2 + 40);
+    return;
+  }
+  
   if (!gameOver) {
     // dibujar carriles
     stroke(100);
@@ -168,7 +181,9 @@ function draw() {
     text(`Jugador 1: ${scoreLeft} puntos (Max Combo: ${maxComboLeft})`, width/2, height/2 - 70);
     text(`Jugador 2: ${scoreRight} puntos (Max Combo: ${maxComboRight})`, width/2, height/2 - 30);
     // puntaje total
-    // document.getElementById("numero").value = score;
+    totalScore = scoreLeft + scoreRight;
+    const input = document.getElementById("numero");
+    if (input) input.value = totalScore;
   }
 }
 
@@ -183,9 +198,22 @@ function keyPressed() {
     song.play();
     songStarted = true;
   }
+  
+  // Manejo de pausa con la tecla Escape
+  if (keyCode === ESCAPE && songStarted && !gameOver) {
+    isPaused = !isPaused;
+    if (isPaused) {
+      song.pause();
+    } else {
+      song.play();
+    }
+  }
+  
+  // Reanudar con cualquier tecla si está pausado (excepto Escape)
+  if (isPaused && keyCode !== ESCAPE && songStarted && !gameOver) {
+    isPaused = false;
+    song.play();
+  }
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  laneWidth = width / lanes;
-}
+

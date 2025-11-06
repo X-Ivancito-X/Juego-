@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const score = document.getElementById('numero').value;
 
-            fetch('../Controller/Score.php', {
+            fetch('/Controller/Score.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
