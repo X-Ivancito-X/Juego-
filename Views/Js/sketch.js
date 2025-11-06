@@ -26,12 +26,15 @@ let beatCooldown = 250;
 let flashLeft = 0, flashRight = 0;
 
 function preload() {
-  // Carga el archivo de música desde la carpeta correcta (relativa a Views/Page/Juego.html)
-  song = loadSound("../Src/Music/Soda_Stereo_-_Tele_K_(mp3.pm).mp3");
+  // Detecta si se ejecuta desde index.php (raíz) o desde Views/Page/Juego.html
+  let path = (typeof window !== 'undefined' && /index\.php$|\/$/.test(window.location.pathname))
+    ? 'Views/Src/Music/Soda_Stereo_-_Tele_K_(mp3.pm).mp3'
+    : '../Src/Music/Soda_Stereo_-_Tele_K_(mp3.pm).mp3';
+  song = loadSound(path);
 }
 
 function setup() {
-  createCanvas(1366, 620);
+  createCanvas(1000, 620);
   laneWidth = width / lanes;
 
   // barra de cada jugador: ocupa los 5 carriles de su lado
@@ -41,6 +44,14 @@ function setup() {
   barRightX = width - laneWidth * 3 - barWidth / 2; // centro en los 5 carriles derechos
 
   fft = new p5.FFT(0.8, 1024);
+}
+
+function windowResized() {
+  resizeCanvas(1366, 600);
+  laneWidth = width / lanes;
+  barWidth = laneWidth * 1;
+  barLeftX = laneWidth * 2 - barWidth / 2;
+  barRightX = width - laneWidth * 3 - barWidth / 2;
 }
 
 function draw() {
