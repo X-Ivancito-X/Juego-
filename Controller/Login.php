@@ -1,10 +1,10 @@
 <?php
     if(!empty($_POST["Ingresar"])){
-        if(!empty($_POST["Usuario"] and !empty($_POST["Contraseña"]))){
-            $Usuario = $_POST["Usuario"];
-            $Contraseña = $_POST["Contraseña"];
+        if(!empty($_POST["nick"] and !empty($_POST["password"]))){
+            $nick = $_POST["nick"];
+            $password = $_POST["password"];
 
-            $Login = $ConBD->query("SELECT * FROM login WHERE Usuario = '$Usuario' and Contraseña = '$Contraseña'");
+            $Login = $ConBD->query("SELECT * FROM login WHERE nick = '$nick' and password = '$password'");
          
             if($Rows = $Login->fetch_object()){
                 echo 'Bienvenido';
